@@ -21,8 +21,15 @@ const createRoom = (name = 'Room 1') => ({
 const defaultRooms = [
   createRoom('Appartement 0B'),
   createRoom('Appartement 1A'),
-  createRoom('Appartement 2A'),
+  createRoom('Appartement 1B'),
 ]
+
+function normalizeSavedRooms(rooms) {
+  return rooms.map((room) => ({
+    ...room,
+    name: room.name === 'Appartement 2A' ? 'Appartement 1B' : room.name,
+  }))
+}
 
 function getPlatformLabel(calendar) {
   if (calendar.platform === 'Custom') {
@@ -38,6 +45,22 @@ function normalizeCalendarUrl(url) {
 
 function buildCalendarProxyUrl(url) {
   return `/api/ical?url=${encodeURIComponent(url)}`
+}
+
+function buildRoomsJson(rooms) {
+  return JSON.stringify(
+    {
+      rooms: rooms.map((room) => ({
+        name: room.name,
+        calendars: room.calendars.map((calendar) => ({
+          platform: getPlatformLabel(calendar),
+          url: calendar.url,
+        })),
+      })),
+    },
+    null,
+    2,
+  )
 }
 
 function unfoldIcal(text) {
@@ -226,7 +249,7 @@ function App() {
     try {
       const parsedRooms = JSON.parse(savedRooms)
       return Array.isArray(parsedRooms) && parsedRooms.length > 0
-        ? parsedRooms
+        ? normalizeSavedRooms(parsedRooms)
         : defaultRooms
     } catch {
       return defaultRooms
@@ -370,6 +393,20 @@ function App() {
     room.calendars.some((calendar) => calendar.url.trim()),
   )
 
+  function downloadRoomsJson() {
+    const blob = new Blob([buildRoomsJson(rooms)], {
+      type: 'application/json',
+    })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+
+    link.href = url
+    link.download = 'rooms.json'
+    link.click()
+
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <main className="app-shell">
       <header className="app-header">
@@ -393,14 +430,24 @@ function App() {
         <button type="button" className="button secondary" onClick={addRoom}>
           + Add room
         </button>
-        <button
-          type="button"
-          className="button primary"
-          disabled={status === 'checking' || !hasRooms || !hasCalendarUrls}
-          onClick={checkReservations}
-        >
-          {status === 'checking' ? 'Checking...' : 'Check reservations'}
-        </button>
+        <div className="toolbar-actions">
+          <button
+            type="button"
+            className="button secondary"
+            disabled={!hasRooms}
+            onClick={downloadRoomsJson}
+          >
+            Download rooms.json
+          </button>
+          <button
+            type="button"
+            className="button primary"
+            disabled={status === 'checking' || !hasRooms || !hasCalendarUrls}
+            onClick={checkReservations}
+          >
+            {status === 'checking' ? 'Checking...' : 'Check reservations'}
+          </button>
+        </div>
       </section>
 
       <section className="rooms" aria-label="Rooms">

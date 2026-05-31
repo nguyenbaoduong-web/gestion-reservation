@@ -56,6 +56,13 @@ async function handleIcalProxy(req, res) {
     })
 
     if (!response.ok) {
+      if (response.status === 404) {
+        sendJson(res, 404, {
+          error: 'Calendar URL not found or expired',
+        })
+        return
+      }
+
       sendJson(res, response.status, {
         error: `Calendar server returned HTTP ${response.status}`,
       })

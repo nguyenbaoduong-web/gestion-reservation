@@ -102,7 +102,8 @@ Le rapport doit aider le proprietaire a comprendre rapidement s'il existe un ris
 
 ### Step 2
 
-A definir.
+App in step 1 run automatiquely at 8 AM everyday, set a repport of booking conflit and automatique send to user via telegram.
+In message, show: reservation 1: plateforme, check-in, check-out; reservation 2: plateforme, check-in, check-out; reservation n: .....
 
 ### Step 3
 

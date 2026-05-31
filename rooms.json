@@ -1,0 +1,43 @@
+{
+  "rooms": [
+    {
+      "name": "Appartement 0B",
+      "calendars": [
+        {
+          "platform": "Booking.com",
+          "url": "https://ical.booking.com/v1/export?t=b5b7a3c1-e8ff-4bf5-baa6-9676212bb7ca"
+        },
+        {
+          "platform": "Airbnb",
+          "url": "https://www.airbnb.fr/calendar/ical/1397281905152864115.ics?t=8c8fdebff0824fb0b09a87c47de3683d"
+        }
+      ]
+    },
+    {
+      "name": "Appartement 1A",
+      "calendars": [
+        {
+          "platform": "Booking.com",
+          "url": "https://ical.booking.com/v1/export?t=d938d309-0d69-4382-ad68-bc35acce8acd"
+        },
+        {
+          "platform": "Airbnb",
+          "url": "https://www.airbnb.fr/calendar/ical/1384977094493859694.ics?t=0ce15fe7dfba49aca03753c3c66fa8c4"
+        }
+      ]
+    },
+    {
+      "name": "Appartement 1B",
+      "calendars": [
+        {
+          "platform": "Booking.com",
+          "url": "https://ical.booking.com/v1/export?t=dc39a476-97d3-420d-8a8a-32665517ecbe"
+        },
+        {
+          "platform": "Airbnb",
+          "url": "https://www.airbnb.fr/calendar/ical/1384949745951981792.ics?t=d4874c9818cc4b2a931458525d7c54cb"
+        }
+      ]
+    }
+  ]
+}

@@ -61,6 +61,13 @@
   backdrop-filter: blur(10px);
 }
 
+.toolbar-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .rooms,
 .conflict-groups {
   display: grid;
@@ -339,6 +346,10 @@ dd {
   .toolbar,
   .report-header {
     align-items: stretch;
+    flex-direction: column;
+  }
+
+  .toolbar-actions {
     flex-direction: column;
   }
 
