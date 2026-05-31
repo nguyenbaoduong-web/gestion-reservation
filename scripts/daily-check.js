@@ -214,6 +214,15 @@ function formatDate(date) {
   }).format(date)
 }
 
+function formatReportDate(date = new Date()) {
+  return new Intl.DateTimeFormat('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
+    timeZone: PARIS_TIME_ZONE,
+    year: 'numeric',
+  }).format(date)
+}
+
 async function readRooms() {
   const content = await readFile(ROOMS_FILE, 'utf8')
   const data = JSON.parse(content)
@@ -300,7 +309,7 @@ function buildReport({ roomReports, fetchErrors }) {
   if (roomReports.length === 0) {
     lines.push('No conflict detected.')
   } else {
-    lines.push('Daily conflict report')
+    lines.push(`Daily conflict report ${formatReportDate()}`)
 
     for (const roomReport of roomReports) {
       lines.push('')
@@ -379,8 +388,9 @@ async function sendTelegramMessage(text) {
 
       if (body.toLowerCase().includes('chat not found')) {
         throw new Error(
-          'Telegram chat not found. Send a message to your bot, then run ' +
-            'npm run telegram:chat-id and put the numeric chat id in .env.',
+          'Telegram chat not found. Use the numeric chat id, not @username. ' +
+            'For local runs, put it in .env. For GitHub Actions, update the ' +
+            'TELEGRAM_CHAT_ID repository secret.',
         )
       }
 
