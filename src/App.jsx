@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import HotelPriceTracker from './components/HotelPriceTracker.jsx'
 import './App.css'
 
 const STORAGE_KEY = 'gestion-reservation-rooms'
@@ -258,6 +259,7 @@ function App() {
   const [status, setStatus] = useState('idle')
   const [report, setReport] = useState(null)
   const [errors, setErrors] = useState([])
+  const [activePage, setActivePage] = useState('reservations')
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(rooms))
@@ -426,6 +428,25 @@ function App() {
         </div>
       </header>
 
+      <nav className="page-tabs" aria-label="Application pages">
+        <button
+          className={activePage === 'reservations' ? 'active' : ''}
+          type="button"
+          onClick={() => setActivePage('reservations')}
+        >
+          Reservations
+        </button>
+        <button
+          className={activePage === 'hotel-prices' ? 'active' : ''}
+          type="button"
+          onClick={() => setActivePage('hotel-prices')}
+        >
+          Hotel Price Tracker
+        </button>
+      </nav>
+
+      {activePage === 'reservations' ? (
+        <>
       <section className="toolbar" aria-label="Main actions">
         <button type="button" className="button secondary" onClick={addRoom}>
           + Add room
@@ -625,6 +646,10 @@ function App() {
             </div>
           )}
         </section>
+      )}
+        </>
+      ) : (
+        <HotelPriceTracker />
       )}
     </main>
   )

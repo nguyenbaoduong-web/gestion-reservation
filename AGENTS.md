@@ -107,7 +107,15 @@ In message, show: reservation 1: plateforme, check-in, check-out; reservation 2:
 
 ### Step 3
 
-A definir.
+Add a new feature to my reservation management web app: Booking.com Hotel Price Tracker.
+Create a UI where the user can:
+1. Paste a Booking.com hotel URL.
+2. Enter a price coefficient, for example 0.8.
+3. Click a button “Run price search”.
+4. The app opens/reads the Booking.com calendar prices using Playwright.
+5. The calendar shows prices for 2 visible months.
+6. The app returns 2 calendar tables, one table per month.
+
 
 ## Technical Context
 
