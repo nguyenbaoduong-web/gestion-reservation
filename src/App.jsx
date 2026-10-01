@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import HotelPriceTracker from './components/HotelPriceTracker.jsx'
 import './App.css'
 
@@ -24,6 +24,37 @@ const defaultRooms = [
   createRoom('Appartement 1A'),
   createRoom('Appartement 1B'),
 ]
+
+function roomsHaveCalendarUrls(rooms) {
+  return rooms.some((room) =>
+    room.calendars?.some((calendar) => calendar.url?.trim()),
+  )
+}
+
+function createCalendarFromConfig(calendar) {
+  const platform = PLATFORM_OPTIONS.includes(calendar.platform)
+    ? calendar.platform
+    : 'Custom'
+
+  return {
+    id: crypto.randomUUID(),
+    platform,
+    customPlatform: platform === 'Custom' ? calendar.platform || '' : '',
+    url: calendar.url || '',
+  }
+}
+
+function createRoomFromConfig(room, index) {
+  const calendars = Array.isArray(room.calendars)
+    ? room.calendars.map(createCalendarFromConfig)
+    : []
+
+  return {
+    id: crypto.randomUUID(),
+    name: room.name || `Room ${index + 1}`,
+    calendars: calendars.length > 0 ? calendars : [createCalendar()],
+  }
+}
 
 function normalizeSavedRooms(rooms) {
   return rooms.map((room) => ({
@@ -260,9 +291,80 @@ function App() {
   const [report, setReport] = useState(null)
   const [errors, setErrors] = useState([])
   const [activePage, setActivePage] = useState('reservations')
+  const [loadedRoomsConfig, setLoadedRoomsConfig] = useState(false)
+  const [roomsFileStatus, setRoomsFileStatus] = useState('idle')
+  const saveRoomsTimerRef = useRef(null)
+
+  useEffect(() => {
+    if (loadedRoomsConfig || roomsHaveCalendarUrls(rooms)) return
+
+    let ignore = false
+
+    async function loadRoomsConfig() {
+      try {
+        const response = await fetch('/api/rooms')
+        if (!response.ok) return
+
+        const data = await response.json()
+        const configuredRooms = Array.isArray(data) ? data : data.rooms
+
+        if (!Array.isArray(configuredRooms)) return
+
+        const nextRooms = configuredRooms.map(createRoomFromConfig)
+        if (!ignore && roomsHaveCalendarUrls(nextRooms)) {
+          setRooms(nextRooms)
+        }
+      } catch {
+        // Keep localStorage/default rooms when rooms.json cannot be loaded.
+      } finally {
+        if (!ignore) setLoadedRoomsConfig(true)
+      }
+    }
+
+    loadRoomsConfig()
+
+    return () => {
+      ignore = true
+    }
+  }, [loadedRoomsConfig, rooms])
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(rooms))
+  }, [rooms])
+
+  useEffect(() => {
+    if (!roomsHaveCalendarUrls(rooms)) return
+
+    if (saveRoomsTimerRef.current) {
+      clearTimeout(saveRoomsTimerRef.current)
+    }
+
+    saveRoomsTimerRef.current = setTimeout(async () => {
+      try {
+        setRoomsFileStatus('saving')
+        const response = await fetch('/api/rooms', {
+          body: buildRoomsJson(rooms),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          method: 'PUT',
+        })
+
+        if (!response.ok) {
+          throw new Error('Unable to save rooms.json')
+        }
+
+        setRoomsFileStatus('saved')
+      } catch {
+        setRoomsFileStatus('error')
+      }
+    }, 900)
+
+    return () => {
+      if (saveRoomsTimerRef.current) {
+        clearTimeout(saveRoomsTimerRef.current)
+      }
+    }
   }, [rooms])
 
   const totalCalendars = useMemo(
@@ -452,6 +554,15 @@ function App() {
           + Add room
         </button>
         <div className="toolbar-actions">
+          {roomsFileStatus !== 'idle' && (
+            <span className={`save-status ${roomsFileStatus}`}>
+              {roomsFileStatus === 'saving'
+                ? 'Saving rooms.json...'
+                : roomsFileStatus === 'saved'
+                  ? 'rooms.json saved'
+                  : 'rooms.json save failed'}
+            </span>
+          )}
           <button
             type="button"
             className="button secondary"

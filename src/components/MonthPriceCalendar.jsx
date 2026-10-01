@@ -36,7 +36,32 @@ function getMonthIndex(month) {
   return MONTH_INDEX_BY_NAME[month.monthName.toLowerCase()] ?? 0
 }
 
-function buildCalendarCells(month) {
+function createEmptyHotelPrices(hotelCount) {
+  return Array.from({ length: hotelCount }, () => ({
+    calculatedPrice: 0,
+    originalPrice: 0,
+  }))
+}
+
+function getHotelPrices(day, hotelCount) {
+  if (Array.isArray(day.hotelPrices)) {
+    return Array.from({ length: hotelCount }, (_, index) =>
+      day.hotelPrices[index] ?? {
+        calculatedPrice: 0,
+        originalPrice: 0,
+      },
+    )
+  }
+
+  return [
+    {
+      calculatedPrice: day.calculatedPrice || 0,
+      originalPrice: day.originalPrice || 0,
+    },
+  ]
+}
+
+function buildCalendarCells(month, hotelCount) {
   const monthIndex = getMonthIndex(month)
   const daysByNumber = new Map(month.days.map((day) => [day.day, day]))
   const daysInMonth = new Date(month.year, monthIndex + 1, 0).getDate()
@@ -57,6 +82,7 @@ function buildCalendarCells(month) {
         calculatedPrice: 0,
         date,
         day: dayNumber,
+        hotelPrices: createEmptyHotelPrices(hotelCount),
         originalPrice: 0,
       },
     )
@@ -69,8 +95,8 @@ function buildCalendarCells(month) {
   return cells
 }
 
-function MonthPriceCalendar({ month }) {
-  const cells = buildCalendarCells(month)
+function MonthPriceCalendar({ hotelCount = 1, month }) {
+  const cells = buildCalendarCells(month, hotelCount)
 
   return (
     <article className="price-calendar-card">
@@ -94,7 +120,12 @@ function MonthPriceCalendar({ month }) {
                   {day && (
                     <div className="price-day">
                       <strong>{day.day}</strong>
-                      <span>{formatPrice(day.calculatedPrice)}</span>
+                      {getHotelPrices(day, hotelCount).map((price, index) => (
+                        <span key={index} className="hotel-price-line">
+                          {hotelCount > 1 && `${index + 1}: `}
+                          {formatPrice(price.calculatedPrice)}
+                        </span>
+                      ))}
                     </div>
                   )}
                 </td>

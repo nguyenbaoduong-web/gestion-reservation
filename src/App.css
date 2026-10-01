@@ -63,9 +63,24 @@
 
 .toolbar-actions {
   display: flex;
+  align-items: center;
   gap: 12px;
   flex-wrap: wrap;
   justify-content: flex-end;
+}
+
+.save-status {
+  color: #586174;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.save-status.saved {
+  color: #23634f;
+}
+
+.save-status.error {
+  color: #a33b35;
 }
 
 .page-tabs {
@@ -376,9 +391,17 @@ dd {
 
 .price-search-form {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(160px, 220px) auto;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   align-items: end;
+}
+
+.price-search-form label {
+  min-width: 0;
+}
+
+.price-search-form label:last-of-type {
+  max-width: 220px;
 }
 
 .price-results {
@@ -418,7 +441,7 @@ dd {
 }
 
 .price-calendar td {
-  height: 86px;
+  height: 118px;
   padding: 8px;
   background: #ffffff;
 }
@@ -429,7 +452,7 @@ dd {
 
 .price-day {
   display: grid;
-  gap: 8px;
+  gap: 5px;
 }
 
 .price-day strong {
@@ -439,6 +462,12 @@ dd {
 .price-day span {
   color: #23634f;
   font-weight: 800;
+}
+
+.hotel-price-line {
+  display: block;
+  font-size: 0.78rem;
+  line-height: 1.25;
 }
 
 @media (max-width: 760px) {
